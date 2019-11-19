@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: emailservice
+  namespace: email
+  labels:
+    app: emailservice
+spec:
+  ports:
+    - name: grpc
+      port: 50051
+      targetPort: 50051
+  selector:
+    app: emailservice
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailservice
+  namespace: email
+  labels:
+    app: emailservice
+spec:
+  selector:
+    matchLabels:
+      app: emailservice
+  template:
+    metadata:
+      labels:
+        app: emailservice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5001"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: emailservice
+          image: eu.gcr.io/neat-tempo-259521/emailservice:latest
+          command: ["/app/service"]
+          args: []
+          ports:
+            - containerPort: 50051
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 300m
+          readinessProbe:
+            exec:
+              command:
+                ["/usr/local//bin/grpc-health-probe", "-addr=:50051"]
+          livenessProbe:
+            exec:
+              command:
+                ["/usr/local//bin/grpc-health-probe", "-addr=:50051"]
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: emailservice
+  namespace: email
+  labels:
+    app: emailservice
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: emailservice
+  minReplicas: 2
+  maxReplicas: 12
+  targetCPUUtilizationPercentage: 50
