@@ -10,7 +10,7 @@ The structure of the service and the interface to the underlying e-mail provider
 The services is setup with a Prometheus scrap endpoint for metrics, to monitor traffic... TODO actual metrics
 
 ### Scaling
-In `manifests/email-service.yaml` are definitions of Kubernetes resources, to deploy the service. This creates 2 replicas of the service that are loadbalanced through "TBD", and will automatically scale on CPU load up to 12 replicas through a Kubernetes HorizontalPodAutoscaler
+In `manifests/email-service.yaml` are definitions of Kubernetes resources, to deploy the service. This creates 2 replicas of the service that are loadbalanced through a GCP ingress, and will automatically scale on CPU load up to 12 replicas through a Kubernetes HorizontalPodAutoscaler. In `cmd/async-client/client.go` is a client implementation that does a lot of parallel requests to test the scaling.
 
 ## Running locally
 The e-mail service can be started with:

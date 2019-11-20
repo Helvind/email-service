@@ -25,7 +25,7 @@ func main() {
 			To:      "jakob.helvind@gmail.com",
 			From:    "someone@gmail.com",
 			Subject: "Hello World",
-			Body:    "Testing SparkPost",
+			Body:    "Testing implementation",
 		},
 	}
 	resp, err := client.SendEmail(context.Background(), email)
@@ -33,5 +33,5 @@ func main() {
 		log.Fatalf("failed sending e-mail, %q", err.Error())
 	}
 
-	log.Printf("send e-mail, status %d", resp.GetStatus())
+	log.Printf("sent e-mail, status %d", resp.GetStatus())
 }
